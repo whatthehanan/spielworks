@@ -1,5 +1,6 @@
-import { Body, Controller, Post } from "@nestjs/common";
+import { Body, Controller, Post, Response } from "@nestjs/common";
 import { BaseController } from "src/shared/infra/http/base-controller";
+import { Response as Res } from 'express';
 import { CreatePersonDTO } from "./create-person.dto";
 import { CreatePersonUseCase } from "./create-person.use-case";
 
@@ -11,12 +12,12 @@ export class CreatePersonController extends BaseController {
     }
 
     @Post("/")
-    async createPerson(@Body() dto: CreatePersonDTO) {
-        await this.createPersonUseCase.execute(dto);
+    async createPerson(@Body() dto: CreatePersonDTO, @Response() res: Res) {
+        const person = await this.createPersonUseCase.execute(dto);
 
-        return {
+        return res.location(`/people/${person.id}`).status(201).json({
             status: "success",
             message: "person created successfully!"
-        }
+        })
     }
 }
